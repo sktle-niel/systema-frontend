@@ -1,0 +1,50 @@
+# CODEKATHAX frontend (Vite SPA) — Apache config for Hostinger shared hosting.
+# Handles www/https canonicalization, the client-side routing fallback React
+# Router needs, and baseline security + caching headers a plain static host
+# doesn't set on its own.
+
+RewriteEngine On
+
+# 1) www -> non-www (canonical: https://codekathax.online)
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
+# 2) http -> https
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# 3) React Router client-side routes: serve index.html for any request that
+#    isn't a real file or folder, so /track, /login, /agent, /admin, etc. work
+#    on a hard refresh or a direct link — not just in-app navigation.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [L]
+
+# No directory listings.
+Options -Indexes
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "DENY"
+    Header always set Referrer-Policy "no-referrer-when-downgrade"
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    # index.html must always be revalidated so a new deploy is picked up
+    # immediately. Hashed assets (assets/*.js, *.css) can be cached hard since
+    # their filename changes whenever their content does.
+    <FilesMatch "^index\.html$">
+        Header set Cache-Control "no-cache"
+    </FilesMatch>
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/html "access plus 0 seconds"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>

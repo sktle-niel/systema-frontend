@@ -1,0 +1,44 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+.chrome-preview/
+.edge-preview*/
+preview-*.png
+database-cleaned/
+
+# QA screenshots
+qa-*.png
+
+# Local env (keep .env.example tracked)
+.env
+.env.*
+!.env.example
+
+# Claude / build tooling
+.claude/
+.impeccable/
+.systema-qa*/
+.npm-cache/
+backend-email-fix/
+database-cleanup.sql
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
