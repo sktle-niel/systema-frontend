@@ -298,14 +298,14 @@ export function PhoneField({
         <input
           type="tel"
           inputMode="tel"
-          maxLength={11}
+          maxLength={10}
           value={phoneNumber}
           onChange={(e) => {
             const digits = e.target.value.replace(/\D/g, "");
-            if (digits.length <= 11) onNumberChange(digits);
+            if (digits.length <= 10) onNumberChange(digits);
           }}
           onBlur={onBlur}
-          placeholder="9xx xxx xxxx"
+          placeholder="9xxxxxxxxx"
           aria-invalid={error ? true : undefined}
           className={cn(
             "min-w-0 flex-1 rounded-xl border-0 bg-mist px-4 py-3 text-[15px] text-ink outline-none transition-shadow duration-200 placeholder:text-muted focus:ring-2",
