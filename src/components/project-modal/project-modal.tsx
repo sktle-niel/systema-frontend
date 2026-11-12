@@ -282,7 +282,7 @@ export function ProjectModal({
             </div>
 
             {/* progress */}
-            <div className="grid shrink-0 grid-cols-4 gap-1.5 px-6 sm:px-7" aria-hidden="true">
+            <div className="grid shrink-0 grid-cols-5 gap-1.5 px-6 sm:px-7" aria-hidden="true">
               {Array.from({ length: FORM_STEPS }, (_, i) => (
                 <span
                   key={i}
