@@ -22,12 +22,12 @@ type ApiResponse = {
 };
 
 export async function submitQuote(data: QuoteData): Promise<SubmitResult> {
+  const { phoneCode, phone, ...rest } = data;
+  const fullPhone = phone.trim() ? `${phoneCode} ${phone.trim()}` : "";
   const res = await fetch(`${API_BASE}/requests.php`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    // `hp` is a honeypot the server checks for spam — always empty for real users.
-    // `ref` attributes the submission to the agent whose link the client used.
-    body: JSON.stringify({ ...data, hp: "", ref: getRef() }),
+    body: JSON.stringify({ ...rest, phone: fullPhone, hp: "", ref: getRef() }),
   });
 
   const json = (await res.json().catch(() => null)) as ApiResponse | null;

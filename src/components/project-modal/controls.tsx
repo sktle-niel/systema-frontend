@@ -58,6 +58,88 @@ export function OptionCard({
 const inputBase =
   "mt-1.5 w-full rounded-xl border-0 bg-mist px-4 py-3 text-[15px] text-ink outline-none transition-shadow duration-200 placeholder:text-muted focus:ring-2";
 
+const COUNTRY_CODES = [
+  { code: "+63", flag: "🇵🇭", name: "Philippines" },
+  { code: "+1", flag: "🇺🇸", name: "US / Canada" },
+  { code: "+44", flag: "🇬🇧", name: "United Kingdom" },
+  { code: "+61", flag: "🇦🇺", name: "Australia" },
+  { code: "+64", flag: "🇳🇿", name: "New Zealand" },
+  { code: "+65", flag: "🇸🇬", name: "Singapore" },
+  { code: "+60", flag: "🇲🇾", name: "Malaysia" },
+  { code: "+81", flag: "🇯🇵", name: "Japan" },
+  { code: "+82", flag: "🇰🇷", name: "South Korea" },
+  { code: "+852", flag: "🇭🇰", name: "Hong Kong" },
+  { code: "+971", flag: "🇦🇪", name: "UAE" },
+  { code: "+966", flag: "🇸🇦", name: "Saudi Arabia" },
+  { code: "+974", flag: "🇶🇦", name: "Qatar" },
+  { code: "+965", flag: "🇰🇼", name: "Kuwait" },
+  { code: "+49", flag: "🇩🇪", name: "Germany" },
+  { code: "+33", flag: "🇫🇷", name: "France" },
+  { code: "+39", flag: "🇮🇹", name: "Italy" },
+  { code: "+34", flag: "🇪🇸", name: "Spain" },
+  { code: "+91", flag: "🇮🇳", name: "India" },
+  { code: "+86", flag: "🇨🇳", name: "China" },
+] as const;
+
+export function PhoneField({
+  label,
+  phoneCode,
+  phoneNumber,
+  onCodeChange,
+  onNumberChange,
+  onBlur,
+  optional,
+  error,
+}: {
+  label: string;
+  phoneCode: string;
+  phoneNumber: string;
+  onCodeChange: (code: string) => void;
+  onNumberChange: (num: string) => void;
+  onBlur?: () => void;
+  optional?: boolean;
+  error?: string;
+}) {
+  return (
+    <div className="block">
+      <span className="flex items-center gap-1.5 text-sm font-semibold text-ink">
+        {label}
+        {optional && <span className="text-xs font-normal text-muted">(optional)</span>}
+      </span>
+      <div className="mt-1.5 flex gap-2">
+        <select
+          value={phoneCode}
+          onChange={(e) => onCodeChange(e.target.value)}
+          className={cn(
+            "w-[120px] shrink-0 rounded-xl border-0 bg-mist px-3 py-3 text-[14px] text-ink outline-none transition-shadow duration-200 focus:ring-2",
+            error ? "ring-2 ring-danger focus:ring-danger" : "focus:ring-ink"
+          )}
+        >
+          {COUNTRY_CODES.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.flag} {c.code}
+            </option>
+          ))}
+        </select>
+        <input
+          type="tel"
+          inputMode="tel"
+          value={phoneNumber}
+          onChange={(e) => onNumberChange(e.target.value)}
+          onBlur={onBlur}
+          placeholder="9xx xxx xxxx"
+          aria-invalid={error ? true : undefined}
+          className={cn(
+            "min-w-0 flex-1 rounded-xl border-0 bg-mist px-4 py-3 text-[15px] text-ink outline-none transition-shadow duration-200 placeholder:text-muted focus:ring-2",
+            error ? "ring-2 ring-danger focus:ring-danger" : "focus:ring-ink"
+          )}
+        />
+      </div>
+      {error && <span className="mt-1.5 block text-[13px] text-danger">{error}</span>}
+    </div>
+  );
+}
+
 export function Field({
   label,
   value,

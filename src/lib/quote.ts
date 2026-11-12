@@ -39,6 +39,7 @@ export type QuoteData = {
   downpayment: string;
   name: string;
   email: string;
+  phoneCode: string;
   phone: string;
   org: string;
 };
@@ -55,6 +56,7 @@ export const INITIAL_DATA: QuoteData = {
   downpayment: "",
   name: "",
   email: "",
+  phoneCode: "+63",
   phone: "",
   org: "",
 };

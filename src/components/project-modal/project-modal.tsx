@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion, type Variants } from "motion/react";
+import { cn } from "@/lib/utils";
 import {
   BUSINESS_BUDGETS,
   BUSINESS_SERVICES,
@@ -11,6 +12,7 @@ import {
   CurrencySwitch,
   Field,
   OptionCard,
+  PhoneField,
   Segmented,
   StepHeading,
   TextArea,
@@ -29,7 +31,7 @@ import {
   validateDownpayment,
 } from "@/lib/validation";
 
-const FORM_STEPS = 4;
+const FORM_STEPS = 5;
 
 // The visitor's PHP / USD choice on the budget step, remembered on this device.
 const CURRENCY_KEY = "systema-currency";
@@ -167,6 +169,10 @@ export function ProjectModal({
 
   const next = () => {
     if (step < FORM_STEPS && canProceed(step)) {
+      if (step === 4) {
+        setTouched((t) => ({ ...t, name: true, email: true, phone: true, org: true }));
+        if (!canProceed(4)) return;
+      }
       setDir(1);
       setStep((s) => s + 1);
     }
@@ -179,10 +185,6 @@ export function ProjectModal({
   };
   const submit = async () => {
     if (phase === "sending") return;
-    if (!canProceed(FORM_STEPS)) {
-      setTouched((t) => ({ ...t, name: true, email: true, phone: true, org: true }));
-      return;
-    }
     setPhase("sending");
     setErrorMsg("");
     try {
@@ -210,9 +212,18 @@ export function ProjectModal({
     if (data.businessName) rows.push(["Business", data.businessName]);
     if (data.industry) rows.push(["Industry", data.industry]);
     rows.push(["Budget", budgetText]);
-    if (data.downpayment.trim()) rows.push(["Downpayment", data.downpayment]);
+    if (data.downpayment.trim()) rows.push(["Downpayment", `₱${Number(data.downpayment).toLocaleString()}`]);
     return rows;
   }, [data, budgetText]);
+
+  const fullSummary: [string, string, boolean?][] = useMemo(() => {
+    const rows: [string, string, boolean?][] = [...summary.map(([k, v]): [string, string, boolean?] => [k, v])];
+    rows.push(["Name", data.name]);
+    rows.push(["Email", data.email, true]);
+    if (data.phone.trim()) rows.push(["Phone", `${data.phoneCode} ${data.phone}`]);
+    if (data.org.trim()) rows.push(["Company", data.org]);
+    return rows;
+  }, [summary, data]);
 
   const stepLabel =
     phase === "done"
@@ -428,24 +439,6 @@ export function ProjectModal({
                           title="Where can we reach you?"
                           subtitle="We'll reply within one business day."
                         />
-                        <div className="mb-5 rounded-2xl bg-mist p-4">
-                          <p className="label mb-2">
-                            Summary
-                          </p>
-                          <dl className="space-y-1.5">
-                            {summary.map(([k, v]) => (
-                              <div
-                                key={k}
-                                className="flex justify-between gap-4 text-sm"
-                              >
-                                <dt className="text-muted">{k}</dt>
-                                <dd className="text-right font-medium text-ink">
-                                  {v}
-                                </dd>
-                              </div>
-                            ))}
-                          </dl>
-                        </div>
                         <div className="space-y-4">
                           <Field
                             label="Full name"
@@ -467,13 +460,14 @@ export function ProjectModal({
                             placeholder="you@email.com"
                             required
                           />
-                          <Field
+                          <PhoneField
                             label="Phone / Messenger"
-                            value={data.phone}
-                            onChange={(v) => set("phone", v)}
+                            phoneCode={data.phoneCode}
+                            phoneNumber={data.phone}
+                            onCodeChange={(v) => set("phoneCode", v)}
+                            onNumberChange={(v) => set("phone", v)}
                             onBlur={() => markTouched("phone")}
                             error={errOf("phone")}
-                            placeholder="09xx xxx xxxx"
                             optional
                           />
                           <Field
@@ -485,6 +479,39 @@ export function ProjectModal({
                             placeholder="Your company"
                             optional
                           />
+                        </div>
+                      </>
+                    )}
+
+                    {step === 5 && (
+                      <>
+                        <StepHeading
+                          title="Review your request"
+                          subtitle="Please double-check everything before submitting."
+                        />
+                        <div className="mb-4 rounded-2xl bg-mist p-4">
+                          <dl className="space-y-2">
+                            {fullSummary.map(([k, v, highlight]) => (
+                              <div
+                                key={k}
+                                className="flex justify-between gap-4 text-sm"
+                              >
+                                <dt className="text-muted">{k}</dt>
+                                <dd className={cn("text-right font-medium", highlight ? "text-brand-ink" : "text-ink")}>
+                                  {v}
+                                </dd>
+                              </div>
+                            ))}
+                          </dl>
+                        </div>
+                        <div className="rounded-2xl border border-[color-mix(in_srgb,var(--color-brand)_40%,transparent)] bg-brand-soft p-4">
+                          <p className="text-[13px] font-semibold text-brand-ink">
+                            Is your email correct?
+                          </p>
+                          <p className="mt-1 text-[15px] font-bold text-ink">{data.email}</p>
+                          <p className="mt-2 text-[13px] leading-relaxed text-muted">
+                            Your reference ticket number and project updates will be sent to this email. If it's wrong, go back and fix it — we won't be able to reach you otherwise.
+                          </p>
                         </div>
                       </>
                     )}
